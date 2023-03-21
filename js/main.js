@@ -74,6 +74,7 @@ function render() {
     }
 
     player.renderWeapon(ctx, canvas);
+    player.renderHealthBar(ctx, canvas);
 }
 
 let lastTimestamp = 0;

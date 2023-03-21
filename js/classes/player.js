@@ -21,6 +21,9 @@ export class Player {
         this.size = tileSize / 4;
         this.weapon = new Weapon(weaponSprite, weaponFrames, weaponWidth, weaponHeight, 50);
         this.weaponBob = 0;
+
+        this.health = 80;
+        this.maxHealth = 100;
     }
 
     move(dx, dy, dt, map) {
@@ -74,6 +77,27 @@ export class Player {
     renderWeapon(ctx, canvas) {
         // Draw the weapon
         this.weapon.render(ctx, canvas, this.weaponBob);
+    }
+
+    renderHealthBar(ctx, canvas) {
+      const barWidth = 200;
+      const barHeight = 20;
+      const x = 10;
+      const y = canvas.height - barHeight - 10;
+    
+      // Draw background
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+      ctx.fillRect(x, y, barWidth, barHeight);
+    
+      // Draw health
+      const healthWidth = (this.health / this.maxHealth) * barWidth;
+      ctx.fillStyle = 'rgba(255, 0, 0, 0.8)';
+      ctx.fillRect(x, y, healthWidth, barHeight);
+    
+      // Draw border
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x, y, barWidth, barHeight);
     }
 
     respawn(x, y) {
