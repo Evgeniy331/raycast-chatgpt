@@ -5,6 +5,7 @@ export const castRay = (angle, player, map, tileSize, maxDepth) => {
     let y = player.y;
     let depth = 0;
     let hitX, hitY;
+    let verticalHit;
 
     while (depth < maxDepth) {
         depth += 1;
@@ -22,7 +23,26 @@ export const castRay = (angle, player, map, tileSize, maxDepth) => {
         if (map[mapY][mapX] === 1) {
             hitX = x % tileSize;
             hitY = y % tileSize;
-            return { distance: depth, hitX, hitY };
+
+            const tileTop = mapY * tileSize;
+            const tileBottom = (mapY + 1) * tileSize;
+            const tileLeft = mapX * tileSize;
+            const tileRight = (mapX + 1) * tileSize;
+            
+            const topDist = Math.abs(y - tileTop);
+            const bottomDist = Math.abs(y - tileBottom);
+            const leftDist = Math.abs(x - tileLeft);
+            const rightDist = Math.abs(x - tileRight);
+            
+            const minDist = Math.min(topDist, bottomDist, leftDist, rightDist);
+            
+            if (minDist === leftDist || minDist === rightDist) {
+                verticalHit = true;
+            } else {
+                verticalHit = false;
+            }
+
+            return { distance: depth, hitX, hitY, verticalHit: verticalHit };
         }
     }
 

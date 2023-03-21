@@ -1,6 +1,10 @@
 import { mapWidth, mapHeight, tileSize, numRays, fov, rayAngle, maxDepth } from './settings';
-import { generateMaze, spawn, createBrickTexture, castRay, isVisible } from './utils';
+import { generateMaze, spawn, castRay, isVisible } from './utils';
 import { Player, Enemy, Minimap } from './classes';
+import wallTextureSrc from '../assets/brickWall.jpg';
+
+const wallTexture = new Image();
+wallTexture.src = wallTextureSrc
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -16,7 +20,6 @@ const enemyPos = spawn(player.x, player.y, tileSize / 2, tileSize, map);
 enemy.respawn(enemyPos.x, enemyPos.y);
 
 canvas.addEventListener('click', () => player.shoot(enemy, map));
-const brickTexture = createBrickTexture();
 
 const minimap = new Minimap(map, tileSize, 0.1);
 
@@ -31,7 +34,9 @@ function render() {
         const depth = rayResult.distance;
         const columnHeight = (tileSize / depth) * (canvas.height / 2);
 
-        const textureX = Math.floor((rayResult.hitX * brickTexture.width) / tileSize) % brickTexture.width;
+        const textureX = rayResult.verticalHit
+            ? Math.floor(rayResult.hitY % tileSize * (wallTexture.width / tileSize))
+            : Math.floor(rayResult.hitX % tileSize * (wallTexture.width / tileSize));
 
         objectsToRender.push({
             type: 'wall',
@@ -58,11 +63,11 @@ function render() {
     for (const object of objectsToRender) {
         if (object.type === 'wall') {
             ctx.drawImage(
-                brickTexture,
+                wallTexture,
                 object.textureX,
                 0,
                 1,
-                brickTexture.height,
+                wallTexture.height,
                 object.x,
                 object.y,
                 object.width,
