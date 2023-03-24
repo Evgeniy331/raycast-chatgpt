@@ -28,21 +28,29 @@ export const castRay = (angle, player, map, tileSize, maxDepth) => {
             const tileBottom = (mapY + 1) * tileSize;
             const tileLeft = mapX * tileSize;
             const tileRight = (mapX + 1) * tileSize;
-            
+
             const topDist = Math.abs(y - tileTop);
             const bottomDist = Math.abs(y - tileBottom);
             const leftDist = Math.abs(x - tileLeft);
             const rightDist = Math.abs(x - tileRight);
-            
+
             const minDist = Math.min(topDist, bottomDist, leftDist, rightDist);
-            
+
             if (minDist === leftDist || minDist === rightDist) {
                 verticalHit = true;
             } else {
                 verticalHit = false;
             }
 
-            return { distance: depth, hitX, hitY, verticalHit: verticalHit };
+            return {
+                distance: depth,
+                hitX,
+                hitY,
+                angle,
+                verticalHit: verticalHit,
+                correctDistance: depth * Math.cos(player.dir - angle),
+                x: x,
+            };
         }
     }
 

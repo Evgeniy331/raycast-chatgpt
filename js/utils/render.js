@@ -21,3 +21,21 @@ export const isVisible = (x1, y1, x2, y2, tileSize, map) => {
 
     return distance;
 };
+
+export const setPixel = (imageData, x, y, r, g, b, a) => {
+    let index = (x + y * imageData.width) * 4;
+    imageData.data[index + 0] = r;
+    imageData.data[index + 1] = g;
+    imageData.data[index + 2] = b;
+    imageData.data[index + 3] = a;
+};
+
+export const getPixel = (imageData, x, y) => {
+    let index = (x + y * imageData.width) * 4;
+    return {
+        r: imageData.data[index + 0],
+        g: imageData.data[index + 1],
+        b: imageData.data[index + 2],
+        a: imageData.data[index + 3],
+    };
+};

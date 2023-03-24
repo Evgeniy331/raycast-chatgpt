@@ -1,6 +1,6 @@
 # Raycast CHAT GPT-4 engine
 
-The goal of this project is to create fully working raycast engine and create a simple game. The main idea is that me  personally is not allowed to write any code by myself, everything should be created with CHAT GPT, even refactoring
+The goal of this project is to create fully working raycast engine and create a simple game. The main idea is that me personally is not allowed to write any code by myself, everything should be created with CHAT GPT, even refactoring
 
 ### Currently working features:
 

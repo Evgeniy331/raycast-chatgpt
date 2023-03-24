@@ -15,8 +15,9 @@ export class Player {
     constructor(x, y) {
         this.x = x;
         this.y = y;
+        this.z = tileSize / 2;
         this.dir = 0;
-        this.speed = 2;
+        this.speed = 4;
         this.turnSpeed = (Math.PI / 180) * 2;
         this.size = tileSize / 4;
         this.weapon = new Weapon(weaponSprite, weaponFrames, weaponWidth, weaponHeight, 50);
@@ -29,46 +30,46 @@ export class Player {
     move(dx, dy, dt, map) {
         const newX = this.x + dx;
         const newY = this.y + dy;
-    
+
         if (!isWall(newX, newY, map)) {
-          this.x = newX;
-          this.y = newY;
-    
-          if (Math.abs(dx) > 0 || Math.abs(dy) > 0) {
-            this.weaponBob += dt * 10;
-          } else {
-            this.weaponBob = 0;
-          }
+            this.x = newX;
+            this.y = newY;
+
+            if (Math.abs(dx) > 0 || Math.abs(dy) > 0) {
+                this.weaponBob += dt * 10;
+            } else {
+                this.weaponBob = 0;
+            }
         }
-      }
+    }
 
     update(deltaTime, map) {
         let dx = 0;
         let dy = 0;
         let moving = false;
-    
+
         if (keyStates['ArrowUp']) {
             dx += Math.cos(this.dir) * this.speed;
             dy += Math.sin(this.dir) * this.speed;
             moving = true;
-          }
-        
-          if (keyStates['ArrowDown']) {
+        }
+
+        if (keyStates['ArrowDown']) {
             dx -= Math.cos(this.dir) * this.speed;
             dy -= Math.sin(this.dir) * this.speed;
             moving = true;
-          }
-    
-        if (keyStates['ArrowLeft']) {
-          this.dir -= this.turnSpeed;
         }
-    
+
+        if (keyStates['ArrowLeft']) {
+            this.dir -= this.turnSpeed;
+        }
+
         if (keyStates['ArrowRight']) {
-          this.dir += this.turnSpeed;
+            this.dir += this.turnSpeed;
         }
 
         this.move(dx, dy, deltaTime, map);
-    
+
         // Update the weapon
         this.weapon.move(deltaTime, moving);
         this.weapon.update(deltaTime);
@@ -80,24 +81,24 @@ export class Player {
     }
 
     renderHealthBar(ctx, canvas) {
-      const barWidth = 200;
-      const barHeight = 20;
-      const x = 10;
-      const y = canvas.height - barHeight - 10;
-    
-      // Draw background
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-      ctx.fillRect(x, y, barWidth, barHeight);
-    
-      // Draw health
-      const healthWidth = (this.health / this.maxHealth) * barWidth;
-      ctx.fillStyle = 'rgba(255, 0, 0, 0.8)';
-      ctx.fillRect(x, y, healthWidth, barHeight);
-    
-      // Draw border
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(x, y, barWidth, barHeight);
+        const barWidth = 200;
+        const barHeight = 20;
+        const x = 10;
+        const y = canvas.height - barHeight - 10;
+
+        // Draw background
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        ctx.fillRect(x, y, barWidth, barHeight);
+
+        // Draw health
+        const healthWidth = (this.health / this.maxHealth) * barWidth;
+        ctx.fillStyle = 'rgba(255, 0, 0, 0.8)';
+        ctx.fillRect(x, y, healthWidth, barHeight);
+
+        // Draw border
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x, y, barWidth, barHeight);
     }
 
     respawn(x, y) {

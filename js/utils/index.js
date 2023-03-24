@@ -4,3 +4,4 @@ export * from './pathfinding';
 export * from './raycasting';
 export * from './render';
 export * from './spawn';
+export * from './resources';

@@ -1,6 +1,6 @@
 // Raycasting settings
 export const tileSize = 64;
-export const numRays = 320;
+export const numRays = 640;
 export const fov = Math.PI / 4;
 export const rayAngle = fov / numRays;
 export const maxDepth = 16 * tileSize;

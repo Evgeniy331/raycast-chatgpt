@@ -1,9 +1,8 @@
 export class Weapon {
     constructor(sprite, frameCount, frameWidth, frameHeight, animationSpeed = 50, bobbingSpeed = 0.01, bobbingAmount = 5) {
         this.sprite = sprite;
-        
+
         this.frameCount = frameCount;
-        console.warn('frameCount=', this.frameCount)
         this.frameWidth = frameWidth;
         this.frameHeight = frameHeight;
         this.animationSpeed = animationSpeed;
@@ -29,9 +28,9 @@ export class Weapon {
     move(deltaTime, moving) {
         if (moving) {
             this.bobbingOffset += this.bobbingSpeed * deltaTime;
-          } else {
+        } else {
             this.bobbingOffset = 0;
-          }
+        }
         // this.elapsedTime += deltaTime;
         // this.bobbingOffset = Math.sin(this.elapsedTime * this.bobbingSpeed) * this.bobbingAmount;
     }

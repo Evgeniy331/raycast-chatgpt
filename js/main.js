@@ -1,52 +1,118 @@
 import { mapWidth, mapHeight, tileSize, numRays, fov, rayAngle, maxDepth } from './settings';
-import { generateMaze, spawn, castRay, isVisible } from './utils';
+import { generateMaze, spawn, castRay, isVisible, getPixel, setPixel, loadTextures } from './utils';
 import { Player, Enemy, Minimap } from './classes';
-import wallTextureSrc from '../assets/brickWall.jpg';
 
-const wallTexture = new Image();
-wallTexture.src = wallTextureSrc
+let floorTexture, wallTexture, map, canvas, ctx, player, playerPos, minimap, enemy, enemyPos, floorImageData, backBuffer;
 
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
+canvas = document.getElementById('gameCanvas');
+ctx = canvas.getContext('2d');
 
-const map = generateMaze(mapWidth, mapHeight);
+const stripWidth = canvas.width / numRays;
+const textureSize = 64;
 
-const player = new Player(tileSize * 2, tileSize * 2);
-const playerPos = spawn(player.x, player.y, tileSize / 2, tileSize, map);
-player.respawn(playerPos.x, playerPos.y);
+const start = async () => {
+    const textures = await loadTextures();
 
-const enemy = new Enemy(0, 0);
-const enemyPos = spawn(player.x, player.y, tileSize / 2, tileSize, map);
-enemy.respawn(enemyPos.x, enemyPos.y);
+    floorTexture = textures.floorTexture;
+    wallTexture = textures.wallTexture;
 
-canvas.addEventListener('click', () => player.shoot(enemy, map));
+    let tmpCanvas = document.createElement('canvas');
+    // Canvas needs to be big enough for the floor texture
+    tmpCanvas.width = floorTexture.width;
+    tmpCanvas.height = floorTexture.height;
+    let tmpContext = tmpCanvas.getContext('2d');
 
-const minimap = new Minimap(map, tileSize, 0.1);
+    tmpContext.drawImage(floorTexture, 0, 0, floorTexture.width, floorTexture.height);
+    floorImageData = tmpContext.getImageData(0, 0, tileSize, tileSize);
+
+    tmpContext.drawImage(wallTexture, 0, 0, wallTexture.width, wallTexture.height);
+
+    map = generateMaze(mapWidth, mapHeight);
+
+    player = new Player(tileSize * 2, tileSize * 2);
+    playerPos = spawn(player.x, player.y, tileSize / 2, tileSize, map);
+    player.respawn(playerPos.x, playerPos.y);
+
+    enemy = new Enemy(0, 0);
+    enemyPos = spawn(player.x, player.y, tileSize / 2, tileSize, map);
+    enemy.respawn(enemyPos.x, enemyPos.y);
+
+    canvas.addEventListener('click', () => player.shoot(enemy, map));
+    minimap = new Minimap(map, tileSize, 0.1);
+
+    backBuffer = ctx.createImageData(canvas.width, canvas.height);
+
+    let lastTimestamp = 0;
+
+    function gameLoop(timestamp) {
+        const dt = timestamp - lastTimestamp;
+        lastTimestamp = timestamp;
+
+        player.update(dt, map);
+        enemy.update(dt, player, map);
+        render();
+        minimap.render(ctx, player, enemy, map);
+        requestAnimationFrame(gameLoop);
+    }
+
+    requestAnimationFrame(gameLoop);
+};
 
 function render() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    backBuffer = ctx.createImageData(canvas.width, canvas.height);
 
     const objectsToRender = [];
+    const displayHeight = canvas.height;
 
     for (let i = 0; i < numRays; i++) {
         const rayDir = player.dir - fov / 2 + i * rayAngle;
+
         const rayResult = castRay(rayDir, player, map, tileSize, maxDepth);
         const depth = rayResult.distance;
-        const columnHeight = (tileSize / depth) * (canvas.height / 2);
 
-        const textureX = rayResult.verticalHit
-            ? Math.floor(rayResult.hitY % tileSize * (wallTexture.width / tileSize))
-            : Math.floor(rayResult.hitX % tileSize * (wallTexture.width / tileSize));
+        const wallHeight = (tileSize / depth) * (canvas.height / 2);
+
+        const wallTextureX = rayResult.verticalHit
+            ? Math.floor((rayResult.hitY % tileSize) * (wallTexture.width / tileSize))
+            : Math.floor((rayResult.hitX % tileSize) * (wallTexture.width / tileSize));
+
+        const strip = i;
+        const centerY = displayHeight / 2;
+        const screenX = strip * stripWidth;
+        const cosRayAngle = Math.cos(rayDir);
+        const sinRayAngle = Math.sin(rayDir);
+        let screenY = centerY;
 
         objectsToRender.push({
+            ...rayResult,
             type: 'wall',
             depth: depth,
-            height: columnHeight,
+            height: wallHeight,
             x: i * (canvas.width / numRays),
-            y: (canvas.height - columnHeight) / 2,
+            y: (canvas.height - wallHeight) / 2,
             width: canvas.width / numRays,
-            textureX: textureX,
+            textureX: wallTextureX,
         });
+
+        for (; screenY < displayHeight; screenY++) {
+            const dy = screenY - canvas.height / 2;
+            const floorDistance = dy === 0 ? 0 : (player.z * displayHeight) / 2 / dy;
+
+            let worldX = player.x + floorDistance * cosRayAngle;
+            let worldY = player.y + floorDistance * sinRayAngle;
+            if (worldX < 0 || worldY < 0 || worldX >= tileSize * map[0].length || worldY >= tileSize * map.length) {
+                continue;
+            }
+            let textureX = Math.floor(worldX) % tileSize;
+            let textureY = Math.floor(worldY) % tileSize;
+
+            if (tileSize != textureSize) {
+                textureX = Math.floor((textureX / tileSize) * textureSize);
+                textureY = Math.floor((textureY / tileSize) * textureSize);
+            }
+            let srcPixel = getPixel(floorImageData, textureX, textureY);
+            setPixel(backBuffer, screenX, screenY, srcPixel.r, srcPixel.g, srcPixel.b, 255);
+        }
     }
 
     const enemyDistance = isVisible(player.x, player.y, enemy.x, enemy.y, tileSize, map);
@@ -60,6 +126,10 @@ function render() {
 
     objectsToRender.sort((a, b) => b.depth - a.depth);
 
+    // draw floor buffer
+    ctx.putImageData(backBuffer, 0, 0);
+
+    // draw walls
     for (const object of objectsToRender) {
         if (object.type === 'wall') {
             ctx.drawImage(
@@ -82,17 +152,6 @@ function render() {
     player.renderHealthBar(ctx, canvas);
 }
 
-let lastTimestamp = 0;
 
-function gameLoop(timestamp) {
-    const dt = timestamp - lastTimestamp;
-    lastTimestamp = timestamp;
 
-    player.update(dt, map);
-    enemy.update(dt, player, map);
-    render();
-    minimap.render(ctx, player, enemy, map);
-    requestAnimationFrame(gameLoop);
-}
-
-requestAnimationFrame(gameLoop);
+start();
