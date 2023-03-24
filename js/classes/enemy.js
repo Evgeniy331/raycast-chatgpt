@@ -1,6 +1,6 @@
 import { tileSize, maxDepth, rayAngle, numRays } from '../settings';
 import { findPath, isWall } from '../utils';
-import enemySpriteSrc from '../../assets/cacodemon.png';
+import enemySpriteSrc from '../../assets/images/cacodemon.png';
 
 const enemySprite = new Image();
 enemySprite.src = enemySpriteSrc;

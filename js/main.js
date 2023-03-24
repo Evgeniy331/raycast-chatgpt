@@ -7,8 +7,8 @@ let floorTexture, wallTexture, map, canvas, ctx, player, playerPos, minimap, ene
 canvas = document.getElementById('gameCanvas');
 ctx = canvas.getContext('2d');
 
-let levelsSelect = document.getElementById('levels');
-let toggleFloorCheckbox = document.getElementById('toggleFloor');
+const levelsSelect = document.getElementById('levels');
+const toggleFloorCheckbox = document.getElementById('toggleFloor');
 
 const stripWidth = canvas.width / numRays;
 const textureSize = 64;

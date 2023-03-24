@@ -2,7 +2,7 @@ import { tileSize, maxDepth, fov } from '../settings';
 import { keyStates } from '../input';
 import { Weapon } from './weapon';
 import { isWall, castRay, normalizeAngle, spawn } from '../utils';
-import weaponSpriteSrc from '../../assets/shotgun.png';
+import weaponSpriteSrc from '../../assets/images/shotgun.png';
 
 const weaponSprite = new Image();
 weaponSprite.src = weaponSpriteSrc;
@@ -11,16 +11,19 @@ const weaponFrames = 4;
 const weaponWidth = 405 / weaponFrames - 3;
 const weaponHeight = 149;
 
+
+const toggleFloorCheckbox = document.getElementById('toggleFloor');
+
 export class Player {
     constructor(x, y) {
         this.x = x;
         this.y = y;
         this.z = tileSize / 2;
         this.dir = 0;
-        this.speed = 4;
+        this.speed = 2;
         this.turnSpeed = (Math.PI / 180) * 2;
         this.size = tileSize / 4;
-        this.weapon = new Weapon(weaponSprite, weaponFrames, weaponWidth, weaponHeight, 50);
+        this.weapon = new Weapon(weaponSprite, weaponFrames, weaponWidth, weaponHeight);
         this.weaponBob = 0;
 
         this.health = 80;
@@ -44,6 +47,13 @@ export class Player {
     }
 
     update(deltaTime, map) {
+        // TODO: it is temporary solution, need to fix floor perfomance
+        if (toggleFloorCheckbox.checked) {
+            this.speed = 5;
+        } else {
+            this.speed = 2;
+        }
+                
         let dx = 0;
         let dy = 0;
         let moving = false;
@@ -107,6 +117,10 @@ export class Player {
     }
 
     shoot(enemy, map) {
+        if (this.weapon.isShooting) {
+            return;
+        }
+
         const dx = enemy.x - this.x;
         const dy = enemy.y - this.y;
         const distance = Math.sqrt(dx * dx + dy * dy);

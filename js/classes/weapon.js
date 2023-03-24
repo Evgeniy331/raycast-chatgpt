@@ -1,6 +1,12 @@
+import shootSoundSrc from '../../assets/sounds/shotgun.mp3';
+
+const shootSound = new Audio(shootSoundSrc);
+
 export class Weapon {
-    constructor(sprite, frameCount, frameWidth, frameHeight, animationSpeed = 50, bobbingSpeed = 0.01, bobbingAmount = 5) {
+    constructor(sprite, frameCount, frameWidth, frameHeight, animationSpeed = 100, bobbingSpeed = 0.01, bobbingAmount = 5) {
         this.sprite = sprite;
+
+        this.disable = false;
 
         this.frameCount = frameCount;
         this.frameWidth = frameWidth;
@@ -12,15 +18,16 @@ export class Weapon {
         this.bobbingAmount = bobbingAmount;
         this.bobbingOffset = 0;
         this.elapsedTime = 0;
+
+        this.isShooting = false;
     }
 
     update(deltaTime) {
         if (this.currentFrame === 0) return;
+
         this.frameTime += deltaTime;
         if (this.frameTime > this.animationSpeed) {
-            // console.warn(this);
-            this.currentFrame = (this.currentFrame + 1) % this.frameCount;
-            // console.warn('this.currentFrame=', this.currentFrame);
+            this.currentFrame = (this.currentFrame + 1) % this.frameCount
             this.frameTime = 0;
         }
     }
@@ -31,26 +38,31 @@ export class Weapon {
         } else {
             this.bobbingOffset = 0;
         }
-        // this.elapsedTime += deltaTime;
-        // this.bobbingOffset = Math.sin(this.elapsedTime * this.bobbingSpeed) * this.bobbingAmount;
     }
 
     shoot() {
+        if (this.isShooting) {
+            return;
+        }
+        
+        shootSound.pause();
+        shootSound.currentTime = 0;
+
+        this.isShooting = true;
+
+        setTimeout(() => this.isShooting = false, 600);
+
         this.currentFrame = 1;
         this.frameTime = 0;
+        shootSound.play();
     }
 
     render(ctx, canvas) {
         const weaponX = (canvas.width - this.frameWidth) / 2;
         const weaponY = canvas.height - this.frameHeight;
         const offsetX = Math.sin(this.bobbingOffset) * this.bobbingAmount;
-        const offsetY = Math.abs(Math.sin(this.bobbingOffset)) * this.bobbingAmount;
+        const offsetY = Math.abs(Math.sin(this.bobbingOffset)) * this.bobbingAmount + 5;
 
-        /*
-        const weaponX = (canvas.width - this.frameWidth) / 2 + this.bobbingOffset;
-        const weaponY = canvas.height - this.frameHeight;
-        console.warn('bobbingOffset=', this.bobbingOffset)
-        */
         ctx.drawImage(
             this.sprite,
             this.frameWidth * this.currentFrame,

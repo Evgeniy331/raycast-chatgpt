@@ -1,5 +1,5 @@
-import wallTextureSrc from '../../assets/brickWall.jpg';
-import floorTextureSrc from '../../assets/floor.png';
+import wallTextureSrc from '../../assets//images/brickWall.jpg';
+import floorTextureSrc from '../../assets/images/floor.png';
 
 const loadImage = async (src) => {
     const image = new Image();
