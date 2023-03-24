@@ -6,12 +6,9 @@
         <title>Simple Raycast Engine</title>
         <style>
             canvas {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translateX(-50%) translateY(-50%);
                 display: block;
-                background: grey;
+                background: lightgrey;
+                width: 1000px;
             }
 
             html,
@@ -23,10 +20,56 @@
             body {
                 background: blue;
             }
+
+            #gameContainer {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translateX(-50%) translateY(-50%);
+                display: flex;
+                color: white;
+                align-items: center;
+            }
+
+            #canvasWrapper {
+                text-align: center;
+            }
+
+            .settingRow {
+                margin-right: 25px;
+                white-space: nowrap;
+                font-size: 15px;
+                display: flex;
+                justify-content: space-between;
+            }
+
+            .settingRow:first-child {
+                margin-bottom: 25px;
+            }
         </style>
     </head>
     <body>
-        <canvas id="gameCanvas" width="640" height="480"></canvas>
+        <div id="gameContainer">
+            <div>
+                <div class="settingRow">
+                    <label for="levels">Levels: </label>
+                    <select id="levels">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                    </select>
+                </div>
+                <div class="settingRow">
+                    <input type="checkbox" id="toggleFloor">
+                    <label for="toggleFloor">Textured Floor</label>
+                </div>
+            </div>
+            <div id="canvasWrapper">
+                <h1>Chat GPT-4 Raycastion Engine</h1>
+                <canvas id="gameCanvas" width="640" height="480"></canvas>
+            </div>
+        </div>
         <script src="bundle.js"></script>
     </body>
 </html>

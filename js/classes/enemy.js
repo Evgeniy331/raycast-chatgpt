@@ -79,7 +79,7 @@ export class Enemy {
         while (angleToEnemy > Math.PI) angleToEnemy -= 2 * Math.PI;
 
         if (distance < maxDepth) {
-            const enemyHeight = (tileSize / distance) * (canvas.height / 2);
+            const enemyHeight = (tileSize / distance) * (canvas.height / 2) * 0.5;
             const enemyWidth = enemyHeight;
             const enemyX = canvas.width / 2 + (angleToEnemy / rayAngle) * (canvas.width / numRays) - enemyWidth / 2;
             const enemyY = (canvas.height - enemyHeight) / 2;
