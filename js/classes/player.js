@@ -50,8 +50,10 @@ export class Player {
         // TODO: it is temporary solution, need to fix floor perfomance
         if (toggleFloorCheckbox.checked) {
             this.speed = 5;
+            this.turnSpeed = (Math.PI / 180) * 4;
         } else {
             this.speed = 2;
+            this.turnSpeed = (Math.PI / 180) * 2;
         }
                 
         let dx = 0;
